@@ -1,40 +1,3 @@
-// const canvas = document.querySelector("canvas");
-// canvas.width = 800;
-// canvas.height = 640;
-
-// const ctx = canvas.getContext("2d");
-
-// function fillCircle(context, x, y, radius, color = "red") {
-//   context.beginPath();
-//   context.arc(x, y, radius, 0, 2 * Math.PI, false);
-//   context.fillStyle = color;
-//   context.fill();
-// }
-
-// fillCircle(ctx, canvas.width / 2, canvas.height / 2, 69);
-
-// canvas.addEventListener('keydown',function (e)  {
-//   console.log(e.code)
-//  switch(e.code) {
-//   case "KeyA":
-//     console.log("LEFT")
-//     break
-//   case "KeyS":  
-//        console.log("DOWN")
-//        break
-// case  "KeyD":
-//        console.log("Rigth")
-//        break;
-//        case  "KeyW":
-//        console.log("UP")
-//     break;
-//   default:
-
-// }
-// })
-
-
-
 
 window.addEventListener("load", function(){
   const canvas = document.getElementById("canvas1")
@@ -43,17 +6,59 @@ window.addEventListener("load", function(){
   canvas.width = 1280;
   canvas.height = 720;
 
+  // context
+  ctx.fillStyle = 'white';
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 3;
+
+
 class Player {
   constructor(game) {
     this.game = game;
+    this.collisionX = this.game.width * 0.5
+    this.collisionY = this.game.height * 0.5
+    this.collisionRadius = 50;
+    this.speedX = 0
+    this.speedY = 0
+    this.dx = 0
+    this.dy = 0
+    this.speedModifier = 20;
+
   }
 
   draw(context) {
     context.beginPath()
-    context.arc(400, 500, 50, 0, Math.PI * 2)
+    context.arc(this.collisionX, this.collisionY, this.collisionRadius, 0, Math.PI * 2)
+    context.save()
+    context.globalAlpha = 0.5;
     context.fill();
-    
+    context.restore();
+    context.stroke();
+    context.beginPath()
+    context.moveTo(this.collisionX, this.collisionY)
+    context.lineTo(this.game.mouse.x, this.game.mouse.y)
+    context.stroke()
   }
+
+  update() {
+    this.dx = this.game.mouse.x - this.collisionX
+    this.dy = this.game.mouse.y - this.collisionY
+    const distance = Math.hypot(this.dy,this.dx)
+    if(distance > this.speedModifier) {
+      this.speedX = this.dx/distance ||0 ;
+      this.speedY = this.dy/distance ||0 ;
+    } else {
+      this.speedX = 0
+      this.speedY = 0
+    }
+ 
+    this.collisionX += this.speedX * this.speedModifier
+    this.collisionY += this.speedY * this.speedModifier;
+  }
+
+
+
+ 
 }
 
 
@@ -69,42 +74,44 @@ class Game {
       pressed: false
     }
 
-  canvas.addEventListener("mousedown", function (e) {
-    this.mouse.x = e.offsetX;
-    this.mouse.y = e.offsetY;
-    console.log(this.mouse)
-    console.log(e.offsetX, e.offsetY)
-  }.bind(this))
-
     canvas.addEventListener("mousedown", (e) => {
     this.mouse.x = e.offsetX;
     this.mouse.y = e.offsetY;
-    console.log(this.mouse)
-    console.log(e.offsetX, e.offsetY)
+    this.pressed = true;
+  })
+    canvas.addEventListener("mouseup", (e) => {
+    this.mouse.x = e.offsetX;
+    this.mouse.y = e.offsetY;
+    this.pressed = false;
   })
 
+    canvas.addEventListener("mousemove", (e) => {
+      if(this.mouse.pressed) {
+
+        this.mouse.x = e.offsetX;
+        this.mouse.y = e.offsetY;
+      }
+    // console.log(this.player.collisionX,this.player.collisionY)
+  })
   }
-
-
-
-  logData() {
-    console.log(this)
-  } 
 
   render (context){
     this.player.draw(context)
+    this.player.update()
   }
 
 
 }
 
 
-
-
-
-
 const _game = new Game(canvas);
-// _game.logData()
-_game.render(ctx)
+function animate() {
+
+  ctx.clearRect(0,0,canvas.width ,canvas.height)
+  _game.render(ctx)
+  requestAnimationFrame(animate)
+}
+animate()
+
 
 })
