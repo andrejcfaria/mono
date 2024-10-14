@@ -76,6 +76,13 @@ class Game {
     console.log(e.offsetX, e.offsetY)
   }.bind(this))
 
+    canvas.addEventListener("mousedown", (e) => {
+    this.mouse.x = e.offsetX;
+    this.mouse.y = e.offsetY;
+    console.log(this.mouse)
+    console.log(e.offsetX, e.offsetY)
+  })
+
   }
 
 
