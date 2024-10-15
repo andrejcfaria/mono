@@ -123,9 +123,31 @@ class Game {
   }
 
   init() {
-    for(let i = 0; i < this.numberOfObstacles; i++ ) {
-      this.obstacles.push(new Obstacle(this))
+
+    let attempt = 0;
+    while(this.obstacles.length < this.numberOfObstacles && attempt < 500) {
+      let testObstacle = new Obstacle(this)
+      let overlap = false;
+      this.obstacles.forEach(obstacle => {
+        const dx = testObstacle.collisionX  - obstacle.collisionX
+        const dy = testObstacle.collisionY - obstacle.collisionY
+        const distance = Math.hypot(dy,dx)
+        const sumOfRadii = testObstacle.collisionRadius + obstacle.collisionRadius;
+        if(distance < sumOfRadii) {
+          overlap = true;
+        }
+      })
+      if(!overlap) {
+        this.obstacles.push(testObstacle)
+      }
+      attempt++
+
     }
+
+
+    // for(let i = 0; i < this.numberOfObstacles; i++ ) {
+    //   this.obstacles.push(new Obstacle(this))
+    // }
   }
 
 
