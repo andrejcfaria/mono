@@ -11,6 +11,26 @@ window.addEventListener("load", function(){
   ctx.strokeStyle = 'white';
   ctx.lineWidth = 3;
 
+  class Obstacle {
+    constructor(game) {
+      this.game = game
+      console.log(this.game)
+      this.collisionX =  Math.random() * this.game.width 
+      this.collisionY = this.game.height * Math.random();
+      this.collisionRadius = 60
+    }
+
+    draw(context) {
+    context.beginPath()
+    context.arc(this.collisionX, this.collisionY, this.collisionRadius, 0, Math.PI * 2)
+    context.save()
+    context.globalAlpha = 0.5;
+    context.fill();
+    context.restore();
+    context.stroke();
+    }
+  }
+
 
 class Player {
   constructor(game) {
@@ -45,8 +65,8 @@ class Player {
     this.dy = this.game.mouse.y - this.collisionY
     const distance = Math.hypot(this.dy,this.dx)
     if(distance > this.speedModifier) {
-      this.speedX = this.dx/distance ||0 ;
-      this.speedY = this.dy/distance ||0 ;
+      this.speedX = this.dx/distance || 0;
+      this.speedY = this.dy/distance || 0;
     } else {
       this.speedX = 0
       this.speedY = 0
@@ -55,9 +75,6 @@ class Player {
     this.collisionX += this.speedX * this.speedModifier
     this.collisionY += this.speedY * this.speedModifier;
   }
-
-
-
  
 }
 
@@ -73,6 +90,10 @@ class Game {
       y: this.height * 0.5,
       pressed: false
     }
+    this.numberOfObstacles = 5;
+    this.obstacles = []
+
+    console.log(this)
 
     canvas.addEventListener("mousedown", (e) => {
     this.mouse.x = e.offsetX;
@@ -91,13 +112,20 @@ class Game {
         this.mouse.x = e.offsetX;
         this.mouse.y = e.offsetY;
       }
-    // console.log(this.player.collisionX,this.player.collisionY)
   })
   }
 
   render (context){
     this.player.draw(context)
     this.player.update()
+    this.obstacles.forEach((obs) => obs.draw(context))
+  
+  }
+
+  init() {
+    for(let i = 0; i < this.numberOfObstacles; i++ ) {
+      this.obstacles.push(new Obstacle(this))
+    }
   }
 
 
@@ -105,6 +133,8 @@ class Game {
 
 
 const _game = new Game(canvas);
+_game.init()
+console.log(_game)
 function animate() {
 
   ctx.clearRect(0,0,canvas.width ,canvas.height)
